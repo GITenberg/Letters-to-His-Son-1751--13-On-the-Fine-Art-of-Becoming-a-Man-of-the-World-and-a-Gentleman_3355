@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: nmqIQ36XdKDC0bc3x/A7u8jfHQAVHwBJ60+GBXfvm+HOz7zQ35TD37XBGt9FlP4zYw8/I48gc1mwg8RCqVoJV6rMhYwrJTBcugtUdveipQ5VD9RbRegeGTNmt4XvDcjwwLLu/7IjBXnPryE/t1kntkdGiLJqYg5HstxpANarfEVgvR+v0lfS95yIWKkTteQZxi8Xw4k4kLTY+cOHMlKCqJMHOVj3u4MGqu8d8mlozsINoXni/rJBge4ABeinC0MkGd/axWHKTDyenGIg3as7S1RH6NE1g7XoOAB8LKjP9pfWFvNkAjXgcLUKPACOpDdV9g5El5MMK5bzqwdrHA7g7CibzpxYgJ/NaT/obTQn6icLwY/8ZsTGA4hbasbCDNYDc4uOAo5583WSeErQoBSseUZWwcdqxG0tRjKEn5q4lHdjsPjpF4n0gUMaPDa4bmdCypD3w6dgPCH2Dhg0TA3/dNt0BWz2YFR+PGje19lW/Jd0g1DSfYAC8RYqbnSDlRQBbO+1HU7GJA3lXqNvDv3/ZigtpIYWu+mSYveQlOwQVL2drUoLYcV+K++ATiPDz6MexLCR8jIkABpJkB+TTXfpwXGuIlSJixNSJewCjCQlsQLOj7EWsusxaXgVQDK1nOiiXX9ocaIxjl3n5FkdNsTAdkl34v5yCX97aLdX9Z/ZkgM=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Letters-to-His-Son-1751--13-On-the-Fine-Art-of-Becoming-a-Man-of-the-World-and-a-Gentleman_3355
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
